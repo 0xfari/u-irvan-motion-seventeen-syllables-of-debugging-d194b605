@@ -1,16 +1,22 @@
-// Seventeen Syllables of Debugging — a haiku, 5-7-5, about debugging.
-// One leftover print statement rides the deploy to production and says hello.
-// The program writes the haiku to /output/entry.txt and nothing else.
-// The print statement stayed past its shift and now greets strangers in production.
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+// Debugging haiku, seventeen syllables: a print statement that shipped.
+// Three lines, five seven five, carried by a tiny program to the output file.
+// The log line outlived its debug session and now waves at strangers.
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+const verse = [
+  "One print statement left,",
+  "shipped to production last night,",
+  "hello, says the log.",
+];
 
-const HAIKU =
-  "One print statement left,\nshipped to production last night,\nhello, says the log.\n";
+const targetDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+if (!existsSync(targetDir)) {
+  mkdirSync(targetDir, { recursive: true });
+}
+for (const name of readdirSync(targetDir)) {
+  rmSync(resolve(targetDir, name), { recursive: true, force: true });
+}
 
-// Five beats, seven beats, five: the leftover log line keeps the rhythm of the mistake.
-mkdirSync(outDir, { recursive: true });
-for (const f of readdirSync(outDir)) rmSync(join(outDir, f), { recursive: true, force: true });
-writeFileSync(join(outDir, "entry.txt"), HAIKU, "utf8");
+// Seventeen syllables, one stray print, and production says good morning.
+writeFileSync(resolve(targetDir, "entry.txt"), verse.join("\n") + "\n", "utf8");
